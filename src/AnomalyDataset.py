@@ -51,10 +51,22 @@ class AnomalyDataset(Dataset):
         if item['gt_name']:
             gt_path = os.path.join(self.gt_dir, item['gt_name'])
             gt = Image.open(gt_path)
+            #测试部分
+            #print("image name:",item['image_name'])
+            #print("gt name:",item['gt_name'])
+            #print("label:",label)
+            #
         else:
             gt = Image.new('L', image.size, color=0)
+            #测试部分
+            #print("image name:",item['image_name'])
+            #print("No gt")
+            #print("label:",label)
+            #
 
         sample = {'label': label}
+
+        sample['image_name'] = item['image_name']
 
         if self.transform:
             sample['image'] = self.transform(image)

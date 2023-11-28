@@ -12,6 +12,7 @@ from AnomalyDataset import AnomalyDataset
 from torchvision import transforms
 from torch.utils.data.dataloader import DataLoader
 from utils import load_model
+import matplotlib.pyplot as plt
 
 
 def parse_arguments():
@@ -54,6 +55,7 @@ def compactness_loss(output):
 
 
 def train(args):
+    train_loss = []
     # Choosing device 
     device = torch.device("cuda:0" if args.gpus else "cpu")
     print(f'Device used: {device}')
@@ -116,6 +118,7 @@ def train(args):
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
+            train_loss.append(running_loss)
 
         # print stats
         print(f"Epoch {epoch+1}, iter {i+1} \t loss: {running_loss}")
@@ -127,7 +130,8 @@ def train(args):
 
         min_running_loss = min(min_running_loss, running_loss)
         running_loss = 0.0
-
+    plt.figure(train_loss)
+    plt.show()
 
 if __name__ == '__main__':
     args = parse_arguments()

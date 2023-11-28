@@ -99,7 +99,7 @@ def get_score_map(inputs, teacher, students, params):
     return score_map
 
 
-def visualize(img, gt, score_map, max_score):
+def visualize(img, gt, score_map, max_score,img_name):
     plt.figure(figsize=(13, 3))
     plt.subplot(1, 3, 1)
     plt.imshow(img)
@@ -117,7 +117,11 @@ def visualize(img, gt, score_map, max_score):
     plt.title('Anomaly map')
 
     plt.clim(0, max_score)
-    plt.show(block=True)
+    #测试用
+    plt.savefig(f'../data/{args.dataset}/result/{img_name}-{args.patch_size}.png')
+#    plt.show(block=True)
+    plt.close()
+    
 
 
 def detect_anomaly(args):
@@ -184,6 +188,8 @@ def detect_anomaly(args):
         batch = next(test_iter)
         inputs = batch['image'].to(device)
         gt = batch['gt'].cpu()
+        img_name = batch['image_name']
+
 
         score_map = get_score_map(inputs, teacher, students, params).cpu()
         y_score = np.concatenate((y_score, rearrange(score_map, 'b h w -> (b h w)').numpy()))
@@ -199,8 +205,10 @@ def detect_anomaly(args):
             for b in range(args.batch_size):
                 visualize(img_in[b, :, :, :].squeeze(), 
                           gt_in[b, :, :, :].squeeze(), 
-                          score_map[b, :, :].squeeze(), 
-                          max_score)
+                          score_map[b, :, :].squeeze(),
+                          max_score,
+                          img_name[b]
+                          )
     
     # AUC ROC
     fpr, tpr, thresholds = roc_curve(y_true.astype(int), y_score)
@@ -212,6 +220,7 @@ def detect_anomaly(args):
     plt.ylabel('TPR')
     plt.legend()
     plt.grid()
+    plt.savefig(f'../data/{args.dataset}/result/roc-{args.patch_size}.png')
     plt.show()
 
 
