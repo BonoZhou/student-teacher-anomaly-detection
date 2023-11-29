@@ -118,8 +118,8 @@ def train(args):
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-            train_loss.append(running_loss)
-
+            
+        train_loss.append(running_loss)
         # print stats
         print(f"Epoch {epoch+1}, iter {i+1} \t loss: {running_loss}")
             
@@ -130,7 +130,7 @@ def train(args):
 
         min_running_loss = min(min_running_loss, running_loss)
         running_loss = 0.0
-    plt.figure(train_loss)
+    plt.plot(train_loss)
     plt.show()
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 import torch
 import torchvision.models as models
 import torch.nn as nn
@@ -42,6 +43,7 @@ def student_loss(output, target):
 
 
 def train(args):
+
     # Choosing device 
     device = torch.device("cuda:0" if args.gpus else "cpu")
     print(f'Device used: {device}')
@@ -104,6 +106,8 @@ def train(args):
                             num_workers=args.num_workers)
 
     for j, student in enumerate(students):
+        losslist = []
+
         min_running_loss = np.inf
         model_name = f'../model/{args.dataset}/student_{args.patch_size}_net_{j}.pt'
         print(f'Training Student {j} on anomaly-free dataset ...')
@@ -130,7 +134,8 @@ def train(args):
                 # print stats
                 if i % 10 == 9:
                     print(f"Epoch {epoch+1}, iter {i+1} \t loss: {running_loss}")
-                    
+                    losslist.append(running_loss)
+
                     if running_loss < min_running_loss and epoch > 0:
                         torch.save(student.state_dict(), model_name)
                         print(f"Loss decreased: {min_running_loss} -> {running_loss}.")
@@ -138,7 +143,8 @@ def train(args):
 
                     min_running_loss = min(min_running_loss, running_loss)
                     running_loss = 0.0
-
+    plt.plot(losslist)
+plt.show()    
 
 if __name__ == '__main__':
     args = parse_arguments()
